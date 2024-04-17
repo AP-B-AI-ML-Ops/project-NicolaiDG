@@ -4,6 +4,10 @@
 
 Ik ga de dataset gebruiken van 'Apple Quality'. Ik zou een API call doen naar de Kaggle URL om de data te extracten.
 
+De link naar de dataset vind u hier:
+
+https://www.kaggle.com/datasets/nelgiriyewithana/apple-quality
+
 ## Project Explanation
 
 Wat ik wil bereiken is een een simpele Machine Learning algoritme die de kwaliteit tussen Appels klassificieert tussen goed en slecht adhv verschillende eigenschappen van die appels.
