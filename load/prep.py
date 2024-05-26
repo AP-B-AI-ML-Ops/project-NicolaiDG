@@ -1,21 +1,19 @@
-import os
 import pandas as pd
-import opendatasets as od
 from prefect import task, flow
 from sklearn.preprocessing import LabelEncoder
 
+import os
+import subprocess
 
 @task
-def data_download(url):
-    dataset_url = url
-    od.download(dataset_url)
-    download_dir = './apple-quality'
-    destination_dir = './data'
-
-    # Verplaats het CSV-bestand naar de gewenste locatie
-    os.makedirs(destination_dir, exist_ok=True)  # Zorg ervoor dat de bestemmingsmap bestaat
-    os.rename(os.path.join(download_dir, 'apple_quality.csv'), os.path.join(destination_dir, 'apple_quality.csv'))
-    os.rmdir(download_dir)
+def download_and_unzip_dataset(dataset_url, destination_dir):
+    command = f'kaggle datasets download -d {dataset_url} -p {destination_dir} --unzip'
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+    if process.returncode != 0:
+        print(f'Error: {stderr.decode()}')
+    else:
+        print(f'Dataset downloaded and extracted successfully to {destination_dir}')
 
 @task
 def read_dataset_to_csv(dataset):
@@ -39,11 +37,11 @@ def preprossessing(dataset,column_name, target):
     dataset.to_csv(save_path, index=False)
 
 @flow
-def prep_flow(data_path: str , dest_path: str):
+def prep_flow():
 
-    os.makedirs(data_path, exist_ok=True)
-    os.makedirs(dest_path, exist_ok=True)
+    dataset_url = 'nelgiriyewithana/apple-quality'
+    destination_dir = './data'
+    download_and_unzip_dataset(dataset_url, destination_dir)
 
-    data_download(url = "https://www.kaggle.com/nelgiriyewithana/apple-quality")
     dataset = read_dataset_to_csv("apple_quality.csv")
     preprossessing(dataset, 'A_id', 'Quality')

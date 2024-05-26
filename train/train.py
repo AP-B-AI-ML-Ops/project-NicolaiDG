@@ -4,6 +4,10 @@ import mlflow
 from prefect import task, flow
 
 
+from sklearn.ensemble import RandomForestRegressor
+
+
+
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
@@ -17,24 +21,34 @@ def load_pickle(filename: str):
 
 @task
 def start_ml_experiment(X_train, y_train, model):
-    with mlflow.start_run():
-        model.fit(X_train, y_train)
 
-@task 
-def model_zoeker(best_model):
-    
-    classifiers = {
-        'Logistic Regression': LogisticRegression(solver='lbfgs', C=1.0),
-        'Decision Tree': DecisionTreeClassifier(max_depth=5, criterion='gini'),
-        'Random Forest': RandomForestClassifier(n_estimators=100, criterion='gini'),
-        'SVM': SVC(kernel='linear', C=1.0),
-        'KNN': KNeighborsClassifier(n_neighbors=5, weights='distance')  # 'uniform' of 'distance'
-    }
+    X_train = X_train.copy()
+    y_train = y_train.copy()
+
+    if isinstance(model, KNeighborsClassifier):
+        with mlflow.start_run():
+            knn = KNeighborsClassifier(n_neighbors=5, weights='distance')
+            knn.fit(X_train, y_train)
+    elif isinstance(model, SVC):
+        with mlflow.start_run():
+            svc = SVC(kernel='linear', C=1.0)
+            svc.fit(X_train, y_train)
+    elif isinstance(model, RandomForestClassifier):
+        with mlflow.start_run():
+            rf = RandomForestClassifier(n_estimators=100, criterion='gini')
+            rf.fit(X_train, y_train)
+    elif isinstance(model, LogisticRegression):
+        with mlflow.start_run():
+            lr = LogisticRegression(solver='lbfgs', C=1.0)
+            lr.fit(X_train, y_train)
+    elif isinstance(model, DecisionTreeClassifier):
+        with mlflow.start_run():
+            dc = DecisionTreeClassifier(max_depth=5, criterion='gini')
+            dc.fit(X_train, y_train)
+    else:
+        print("Ongeldige model")
 
 
-    for model_name, model_instance in classifiers.items():
-        if isinstance(best_model, type(model_instance)):
-            return model_instance
 
 @flow
 def train_flow(model_path: str, best_model):
@@ -42,6 +56,8 @@ def train_flow(model_path: str, best_model):
     mlflow.sklearn.autolog()
     
     X_train, y_train = load_pickle(os.path.join(model_path, "train.pkl"))
-    model = model_zoeker(best_model)
 
-    start_ml_experiment(X_train, y_train, model)
+    print(best_model)
+
+
+    start_ml_experiment(X_train, y_train, best_model)
