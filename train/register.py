@@ -15,6 +15,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import mean_squared_error
 
 from prefect import task, flow
+import shutil
 
 @task
 def load_pickle(filename):
@@ -155,4 +156,11 @@ def register_flow(model_path: str, top_n: int, experiment_name: str, hpo_experim
     # Register the best model
     run_id = best_run.info.run_id
     model_uri = f"runs:/{run_id}/model"
-    mlflow.register_model(model_uri, name=f"{best_model}-best-model")
+    mlflow.register_model(model_uri, name=f"{best_model}")
+
+    # Laad het model vanuit MLflow
+    model = mlflow.sklearn.load_model(model_uri)
+    # Sla het model op in de map ./models/KNeighborsClassifier
+    if os.path.exists("./models/best_model") and os.listdir("./models/best_model"):
+        shutil.rmtree("./models/best_model")
+        mlflow.sklearn.save_model(model, path="./models/best_model")

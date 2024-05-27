@@ -10,4 +10,10 @@ optuna
 threadpoolctl
 botocore
 
+prefect
 kaggle
+evidently
+psycopg
+psycopg_binary
+pyarrow
+joblib
