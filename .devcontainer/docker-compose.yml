@@ -17,9 +17,10 @@ services:
     env_file:
         - ../.env
     volumes:
-      - grafana-data-config-datasources:/workspaces/Project_MLOPS/project-NicolaiDG/.grafana/datasources
-      - grafana-data-config-dashboards:/workspaces/Project_MLOPS/project-NicolaiDG/.grafana/dashboards
-      - grafana-data-dashboards:/workspaces/Project_MLOPS/project-NicolaiDG/dashboards
+      - ../:/workspaces/project-NicolaiDG
+      - grafana-data-config-datasources:/workspaces/project-NicolaiDGG/.grafana/datasources
+      - grafana-data-config-dashboards:/workspaces/project-NicolaiDG/.grafana/dashboards
+      - grafana-data-dashboards:/workspaces/project-NicolaiDG/dashboards
     network_mode: service:db
     command: sleep infinity
 
@@ -42,3 +43,16 @@ services:
       - "8080:8080"
     networks:
       - back-tier
+
+  grafana:
+    image: grafana/grafana
+    restart: unless-stopped
+    volumes:
+      - grafana-data-config-datasources:/etc/grafana/provisioning/datasources:ro
+      - grafana-data-config-dashboards:/etc/grafana/provisioning/dashboards:ro
+      - grafana-data-dashboards:/opt/grafana/dashboards
+    ports:
+      - "3000:3000"
+    networks:
+      - back-tier
+    user: "472"
