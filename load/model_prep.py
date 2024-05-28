@@ -14,13 +14,6 @@ from load.prep import read_dataset_to_csv
 
 
 @task
-def define_x_and_y(dataset):
-    X = dataset.drop(columns=["Quality"])
-    y = dataset["Quality"]
-    return X, y
-
-
-@task
 def split_train_test_val(dataset):
     X = dataset.drop(columns=["Quality"])
     y = dataset["Quality"]

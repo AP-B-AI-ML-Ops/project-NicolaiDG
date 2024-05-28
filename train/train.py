@@ -1,6 +1,5 @@
 import os
 import pickle
-
 import mlflow
 from prefect import flow, task
 from sklearn.ensemble import RandomForestClassifier
