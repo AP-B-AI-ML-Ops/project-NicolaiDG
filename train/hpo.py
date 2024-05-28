@@ -1,19 +1,16 @@
 import os
 import pickle
+
 import mlflow
 import optuna
-
-from prefect import task, flow
-
 from optuna.samplers import TPESampler
-
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
+from prefect import flow, task
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
-from sklearn.neighbors import KNeighborsClassifier
-
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import mean_squared_error
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
 
 
 @task
@@ -39,75 +36,57 @@ def optimize(X_train, y_train, X_val, y_val, num_trials, best_model):
             }
             with mlflow.start_run():
                 mlflow.log_params(params)
-                rf = RandomForestClassifier(**params)
-                rf.fit(X_train_copy, y_train_copy)  # Gebruik de kopieën
-                y_pred = rf.predict(X_val)
-                y_val_copy = (
-                    y_val.copy()
-                )  # Kopieer y_val voordat je het doorgeeft aan mean_squared_error
+                model_instance = RandomForestClassifier(**params)
+                model_instance.fit(X_train_copy, y_train_copy)  # Gebruik de kopieën
+                y_pred = model_instance.predict(X_val)
+                y_val_copy = y_val.copy()
                 rmse = mean_squared_error(y_val_copy, y_pred, squared=False)
                 mlflow.log_metric("rmse", rmse)
             return rmse
 
-        elif isinstance(best_model, KNeighborsClassifier):
+        if isinstance(best_model, KNeighborsClassifier):
             params = {
-                "n_neighbors": trial.suggest_int(
-                    "n_neighbors", 1, 10
-                ),  # Aantal naburige punten om te gebruiken voor het voorspellen
+                "n_neighbors": trial.suggest_int("n_neighbors", 1, 10),
                 "weights": trial.suggest_categorical(
                     "weights", ["uniform", "distance"]
-                ),  # Gewichten van de naburige punten
+                ),
                 "algorithm": trial.suggest_categorical(
                     "algorithm", ["auto", "ball_tree", "kd_tree", "brute"]
-                ),  # Algoritme om de naburige punten te berekenen
-                "leaf_size": trial.suggest_int(
-                    "leaf_size", 10, 50
-                ),  # Grootte van het bladknooppunt voor het algoritme (indien van toepassing)
-                "p": trial.suggest_int(
-                    "p", 1, 2
-                ),  # Machtparameter voor de Minkowski-metriek
+                ),
+                "leaf_size": trial.suggest_int("leaf_size", 10, 50),
+                "p": trial.suggest_int("p", 1, 2),
             }
-
             with mlflow.start_run():
                 mlflow.log_params(params)
-                knn = KNeighborsClassifier(**params)
-                knn.fit(X_train_copy, y_train_copy)  # Gebruik de kopieën
-                y_pred = knn.predict(X_val)
-                y_val_copy = (
-                    y_val.copy()
-                )  # Kopieer y_val voordat je het doorgeeft aan mean_squared_error
+                model_instance = KNeighborsClassifier(**params)
+                model_instance.fit(X_train_copy, y_train_copy)  # Gebruik de kopieën
+                y_pred = model_instance.predict(X_val)
+                y_val_copy = y_val.copy()
                 rmse = mean_squared_error(y_val_copy, y_pred, squared=False)
                 mlflow.log_metric("rmse", rmse)
             return rmse
 
-        elif isinstance(best_model, SVC):
+        if isinstance(best_model, SVC):
             params = {
-                "C": trial.suggest_loguniform("C", 0.1, 10.0),  # Regularisatieterm
+                "C": trial.suggest_loguniform("C", 0.1, 10.0),
                 "kernel": trial.suggest_categorical(
                     "kernel", ["linear", "poly", "rbf", "sigmoid"]
-                ),  # Kerneltype
-                "degree": trial.suggest_int(
-                    "degree", 1, 5
-                ),  # Graad van de polynomiale kernel (alleen voor 'poly')
-                "gamma": trial.suggest_categorical(
-                    "gamma", ["scale", "auto"]
-                ),  # Gamma-parameter voor 'rbf', 'poly' en 'sigmoid'
-                "probability": True,  # Of de klassekansen moeten worden ingeschakeld
+                ),
+                "degree": trial.suggest_int("degree", 1, 5),
+                "gamma": trial.suggest_categorical("gamma", ["scale", "auto"]),
+                "probability": True,
             }
-
             with mlflow.start_run():
                 mlflow.log_params(params)
-                svc = SVC(**params)
-                svc.fit(X_train_copy, y_train_copy)  # Gebruik de kopieën
-                y_pred = svc.predict(X_val)
-                y_val_copy = (
-                    y_val.copy()
-                )  # Kopieer y_val voordat je het doorgeeft aan mean_squared_error
+                model_instance = SVC(**params)
+                model_instance.fit(X_train_copy, y_train_copy)  # Gebruik de kopieën
+                y_pred = model_instance.predict(X_val)
+                y_val_copy = y_val.copy()
                 rmse = mean_squared_error(y_val_copy, y_pred, squared=False)
                 mlflow.log_metric("rmse", rmse)
             return rmse
 
-        elif isinstance(best_model, LogisticRegression):
+        if isinstance(best_model, LogisticRegression):
             params = {
                 "penalty": trial.suggest_categorical("penalty", ["l1", "l2"]),
                 "C": trial.suggest_loguniform("C", 0.01, 10.0),
@@ -116,20 +95,17 @@ def optimize(X_train, y_train, X_val, y_val, num_trials, best_model):
                 ),
                 "max_iter": trial.suggest_int("max_iter", 100, 1000),
             }
-
             with mlflow.start_run():
                 mlflow.log_params(params)
-                lr = LogisticRegression(**params)
-                lr.fit(X_train_copy, y_train_copy)  # Gebruik de kopieën
-                y_pred = lr.predict(X_val)
-                y_val_copy = (
-                    y_val.copy()
-                )  # Kopieer y_val voordat je het doorgeeft aan mean_squared_error
+                model_instance = LogisticRegression(**params)
+                model_instance.fit(X_train_copy, y_train_copy)  # Gebruik de kopieën
+                y_pred = model_instance.predict(X_val)
+                y_val_copy = y_val.copy()
                 rmse = mean_squared_error(y_val_copy, y_pred, squared=False)
                 mlflow.log_metric("rmse", rmse)
             return rmse
 
-        elif isinstance(best_model, DecisionTreeClassifier):
+        if isinstance(best_model, DecisionTreeClassifier):
             params = {
                 "max_depth": trial.suggest_int("max_depth", 1, 20),
                 "min_samples_split": trial.suggest_int("min_samples_split", 2, 10),
@@ -138,21 +114,18 @@ def optimize(X_train, y_train, X_val, y_val, num_trials, best_model):
                     "max_features", ["auto", "sqrt", "log2"]
                 ),
             }
-
             with mlflow.start_run():
                 mlflow.log_params(params)
-                dt = DecisionTreeClassifier(**params)
-                dt.fit(X_train_copy, y_train_copy)  # Gebruik de kopieën
-                y_pred = dt.predict(X_val)
-                y_val_copy = (
-                    y_val.copy()
-                )  # Kopieer y_val voordat je het doorgeeft aan mean_squared_error
+                model_instance = DecisionTreeClassifier(**params)
+                model_instance.fit(X_train_copy, y_train_copy)  # Gebruik de kopieën
+                y_pred = model_instance.predict(X_val)
+                y_val_copy = y_val.copy()
                 rmse = mean_squared_error(y_val_copy, y_pred, squared=False)
                 mlflow.log_metric("rmse", rmse)
             return rmse
 
-        else:
-            print("Ongeldige model")
+        print("Ongeldige model")
+        return float("inf")
 
     sampler = TPESampler(seed=42)
     study = optuna.create_study(direction="minimize", sampler=sampler)

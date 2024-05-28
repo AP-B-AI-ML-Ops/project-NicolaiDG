@@ -1,14 +1,14 @@
 import matplotlib
 import mlflow
 from prefect import flow
-from load.prep import prep_flow
-from load.model_prep import model_prep_flow
-from train.hpo import hpo_flow
-from train.train import train_flow
-from train.register import register_flow
-from rapport.rapport_evidently import rapport_flow
-from database.database_store import database_store_flow
 
+from database.database_store import database_store_flow
+from load.model_prep import model_prep_flow
+from load.prep import prep_flow
+from rapport.rapport_evidently import rapport_flow
+from train.hpo import hpo_flow
+from train.register import register_flow
+from train.train import train_flow
 
 matplotlib.use(
     "agg"
@@ -38,12 +38,10 @@ def main_flow():
 if __name__ == "__main__":
     main_flow()
 
-# nicolaidegroot
-# 6900d57ce8d4df31b0a445d890d726bf
-
-
 # mlflow ui --backend-store-uri sqlite:///mlflow.db
 
 # pylint --recursive=y .
 # black --diff .
 # black .
+# isort --diff
+# pre-commit sample-config | out-file .pre-commit-config.yaml -encoding utf8

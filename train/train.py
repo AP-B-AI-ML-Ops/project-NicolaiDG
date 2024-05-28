@@ -1,17 +1,13 @@
 import os
 import pickle
+
 import mlflow
-from prefect import task, flow
-
-
-from sklearn.ensemble import RandomForestRegressor
-
-
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
+from prefect import flow, task
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
 
 
 @task

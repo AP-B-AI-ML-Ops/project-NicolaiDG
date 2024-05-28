@@ -1,31 +1,31 @@
-import pandas as pd
-from prefect import task, flow
-from sklearn.preprocessing import LabelEncoder
-
 import os
 import subprocess
+
+import pandas as pd
+from prefect import flow, task
+from sklearn.preprocessing import LabelEncoder
 
 
 @task
 def download_and_unzip_dataset(dataset_url, destination_dir):
     command = f"kaggle datasets download -d {dataset_url} -p {destination_dir} --unzip"
-    process = subprocess.Popen(
+    with subprocess.Popen(
         command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
-    stdout, stderr = process.communicate()
-    if process.returncode != 0:
-        print(f"Error: {stderr.decode()}")
-    else:
-        print(f"Dataset downloaded and extracted successfully to {destination_dir}")
+    ) as process:
+        _, stderr = process.communicate()
+        if process.returncode != 0:
+            print(f"Error: {stderr.decode()}")
+        else:
+            print(f"Dataset downloaded and extracted successfully to {destination_dir}")
 
-        # Find the downloaded ZIP file
-        zip_file = next(
-            (f for f in os.listdir(destination_dir) if f.endswith(".zip")), None
-        )
-        if zip_file:
-            zip_file_path = os.path.join(destination_dir, zip_file)
-            os.remove(zip_file_path)
-            print(f"ZIP file {zip_file_path} has been deleted")
+            # Find the downloaded ZIP file
+            zip_file = next(
+                (f for f in os.listdir(destination_dir) if f.endswith(".zip")), None
+            )
+            if zip_file:
+                zip_file_path = os.path.join(destination_dir, zip_file)
+                os.remove(zip_file_path)
+                print(f"ZIP file {zip_file_path} has been deleted")
 
 
 @task
@@ -53,7 +53,6 @@ def preprossessing(dataset, column_name, target):
 
 @flow
 def prep_flow():
-
     dataset_url = "nelgiriyewithana/apple-quality"
     destination_dir = "./data"
     download_and_unzip_dataset(dataset_url, destination_dir)

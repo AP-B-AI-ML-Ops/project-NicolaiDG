@@ -21,3 +21,5 @@ joblib
 pytest
 pylint
 black
+isort
+pre-commit

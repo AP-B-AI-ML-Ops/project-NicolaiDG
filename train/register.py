@@ -1,21 +1,17 @@
 import os
 import pickle
-import mlflow
+import shutil
 
+import mlflow
 from mlflow.entities import ViewType
 from mlflow.tracking import MlflowClient
-
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
+from prefect import flow, task
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
-from sklearn.neighbors import KNeighborsClassifier
-
-
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import mean_squared_error
-
-from prefect import task, flow
-import shutil
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
 
 
 @task
