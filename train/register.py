@@ -17,6 +17,7 @@ from sklearn.metrics import mean_squared_error
 from prefect import task, flow
 import shutil
 
+
 @task
 def load_pickle(filename):
     with open(filename, "rb") as f_in:
@@ -37,21 +38,32 @@ def train_and_log_model(X_train, y_train, X_val, y_val, X_test, y_test, params, 
     X_test_copy = X_test.copy()
 
     if isinstance(model, KNeighborsClassifier):
-        PARAMS = ['n_neighbors' ,'leaf_size', 'p']
+        PARAMS = ["n_neighbors", "leaf_size", "p"]
         with mlflow.start_run():
             for param in PARAMS:
-                params[param] = int(params[param]) # Convert to float
+                params[param] = int(params[param])  # Convert to float
 
             knn = KNeighborsClassifier(**params)
             knn.fit(X_train_copy, y_train_copy)
 
-            val_rmse = mean_squared_error(y_val_copy, knn.predict(X_val_copy), squared=False)
+            val_rmse = mean_squared_error(
+                y_val_copy, knn.predict(X_val_copy), squared=False
+            )
             mlflow.log_metric("val_rmse", val_rmse)
-            test_rmse = mean_squared_error(y_test_copy, knn.predict(X_test_copy), squared=False)
-            mlflow.log_metric("test_rmse", test_rmse)          
+            test_rmse = mean_squared_error(
+                y_test_copy, knn.predict(X_test_copy), squared=False
+            )
+            mlflow.log_metric("test_rmse", test_rmse)
 
     elif isinstance(model, RandomForestClassifier):
-        PARAMS = ['max_depth', 'n_estimators', 'min_samples_split', 'min_samples_leaf', 'random_state', 'n_jobs']
+        PARAMS = [
+            "max_depth",
+            "n_estimators",
+            "min_samples_split",
+            "min_samples_leaf",
+            "random_state",
+            "n_jobs",
+        ]
         with mlflow.start_run():
             for param in PARAMS:
                 params[param] = int(params[param])
@@ -59,13 +71,17 @@ def train_and_log_model(X_train, y_train, X_val, y_val, X_test, y_test, params, 
             rf = RandomForestClassifier(**params)
             rf.fit(X_train_copy, y_train_copy)
 
-            val_rmse = mean_squared_error(y_val_copy, rf.predict(X_val_copy), squared=False)
+            val_rmse = mean_squared_error(
+                y_val_copy, rf.predict(X_val_copy), squared=False
+            )
             mlflow.log_metric("val_rmse", val_rmse)
-            test_rmse = mean_squared_error(y_test_copy, rf.predict(X_test_copy), squared=False)
+            test_rmse = mean_squared_error(
+                y_test_copy, rf.predict(X_test_copy), squared=False
+            )
             mlflow.log_metric("test_rmse", test_rmse)
 
     elif isinstance(model, SVC):
-        PARAMS = ['C', 'degree', 'gamma', 'coef0', 'tol', 'cache_size', 'max_iter']
+        PARAMS = ["C", "degree", "gamma", "coef0", "tol", "cache_size", "max_iter"]
         with mlflow.start_run():
             for param in PARAMS:
                 params[param] = int(params[param])
@@ -73,13 +89,17 @@ def train_and_log_model(X_train, y_train, X_val, y_val, X_test, y_test, params, 
             sc = SVC(**params)
             sc.fit(X_train_copy, y_train_copy)
 
-            val_rmse = mean_squared_error(y_val_copy, sc.predict(X_val_copy), squared=False)
+            val_rmse = mean_squared_error(
+                y_val_copy, sc.predict(X_val_copy), squared=False
+            )
             mlflow.log_metric("val_rmse", val_rmse)
-            test_rmse = mean_squared_error(y_test_copy, sc.predict(X_test_copy), squared=False)
+            test_rmse = mean_squared_error(
+                y_test_copy, sc.predict(X_test_copy), squared=False
+            )
             mlflow.log_metric("test_rmse", test_rmse)
 
     elif isinstance(model, LogisticRegression):
-        PARAMS = ['tol', 'C', 'max_iter', 'n_jobs']
+        PARAMS = ["tol", "C", "max_iter", "n_jobs"]
         with mlflow.start_run():
             for param in PARAMS:
                 params[param] = int(params[param])
@@ -87,13 +107,27 @@ def train_and_log_model(X_train, y_train, X_val, y_val, X_test, y_test, params, 
             lr = LogisticRegression(**params)
             lr.fit(X_train_copy, y_train_copy)
 
-            val_rmse = mean_squared_error(y_val_copy, lr.predict(X_val_copy), squared=False)
+            val_rmse = mean_squared_error(
+                y_val_copy, lr.predict(X_val_copy), squared=False
+            )
             mlflow.log_metric("val_rmse", val_rmse)
-            test_rmse = mean_squared_error(y_test_copy, lr.predict(X_test_copy), squared=False)
+            test_rmse = mean_squared_error(
+                y_test_copy, lr.predict(X_test_copy), squared=False
+            )
             mlflow.log_metric("test_rmse", test_rmse)
 
     elif isinstance(model, DecisionTreeClassifier):
-        PARAMS = ['max_depth', 'min_samples_split', 'min_samples_leaf', 'min_weight_fraction_leaf', 'max_features', 'max_leaf_nodes', 'min_impurity_decrease', 'min_impurity_split', 'ccp_alpha']
+        PARAMS = [
+            "max_depth",
+            "min_samples_split",
+            "min_samples_leaf",
+            "min_weight_fraction_leaf",
+            "max_features",
+            "max_leaf_nodes",
+            "min_impurity_decrease",
+            "min_impurity_split",
+            "ccp_alpha",
+        ]
 
         with mlflow.start_run():
             for param in PARAMS:
@@ -102,13 +136,18 @@ def train_and_log_model(X_train, y_train, X_val, y_val, X_test, y_test, params, 
             dc = DecisionTreeClassifier(**params)
             dc.fit(X_train_copy, y_train_copy)
 
-            val_rmse = mean_squared_error(y_val_copy, dc.predict(X_val_copy), squared=False)
+            val_rmse = mean_squared_error(
+                y_val_copy, dc.predict(X_val_copy), squared=False
+            )
             mlflow.log_metric("val_rmse", val_rmse)
-            test_rmse = mean_squared_error(y_test_copy, dc.predict(X_test_copy), squared=False)
+            test_rmse = mean_squared_error(
+                y_test_copy, dc.predict(X_test_copy), squared=False
+            )
             mlflow.log_metric("test_rmse", test_rmse)
 
     else:
         print("Ongeldige model")
+
 
 @task
 def get_experiment_runs(top_n, hpo_experiment_name):
@@ -118,9 +157,10 @@ def get_experiment_runs(top_n, hpo_experiment_name):
         experiment_ids=experiment.experiment_id,
         run_view_type=ViewType.ACTIVE_ONLY,
         max_results=top_n,
-        order_by=["metrics.rmse ASC"]
+        order_by=["metrics.rmse ASC"],
     )
     return runs
+
 
 @task
 def select_best_model(top_n, experiment_name):
@@ -130,16 +170,23 @@ def select_best_model(top_n, experiment_name):
         experiment_ids=experiment.experiment_id,
         run_view_type=ViewType.ACTIVE_ONLY,
         max_results=top_n,
-        order_by=["metrics.test_rmse ASC"]
+        order_by=["metrics.test_rmse ASC"],
     )[0]
-    
+
     return best_run
 
+
 @flow
-def register_flow(model_path: str, top_n: int, experiment_name: str, hpo_experiment_name: str, best_model):
+def register_flow(
+    model_path: str,
+    top_n: int,
+    experiment_name: str,
+    hpo_experiment_name: str,
+    best_model,
+):
     mlflow.set_experiment(experiment_name)
     mlflow.sklearn.autolog()
-    
+
     X_train, y_train = load_pickle(os.path.join(model_path, "train.pkl"))
     X_val, y_val = load_pickle(os.path.join(model_path, "val.pkl"))
     X_test, y_test = load_pickle(os.path.join(model_path, "test.pkl"))
@@ -148,7 +195,16 @@ def register_flow(model_path: str, top_n: int, experiment_name: str, hpo_experim
     runs = get_experiment_runs(top_n, hpo_experiment_name)
     for run in runs:
         # Assuming you have 'model' defined somewhere before this loop
-        train_and_log_model(X_train, y_train, X_val, y_val, X_test, y_test, params=run.data.params, model=best_model)
+        train_and_log_model(
+            X_train,
+            y_train,
+            X_val,
+            y_val,
+            X_test,
+            y_test,
+            params=run.data.params,
+            model=best_model,
+        )
 
     # Select the model with the lowest test RMSE
     best_run = select_best_model(top_n, experiment_name)
@@ -163,4 +219,5 @@ def register_flow(model_path: str, top_n: int, experiment_name: str, hpo_experim
     # Sla het model op in de map ./models/KNeighborsClassifier
     if os.path.exists("./models/best_model") and os.listdir("./models/best_model"):
         shutil.rmtree("./models/best_model")
-        mlflow.sklearn.save_model(model, path="./models/best_model")
+    os.makedirs("./models/best_model", exist_ok=True)
+    mlflow.sklearn.save_model(model, path="./models/best_model")

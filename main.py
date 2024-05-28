@@ -1,17 +1,18 @@
-from prefect import flow, task
+import matplotlib
 import mlflow
-import pickle
-import os
-
+from prefect import flow
 from load.prep import prep_flow
 from load.model_prep import model_prep_flow
 from train.hpo import hpo_flow
 from train.train import train_flow
 from train.register import register_flow
 from rapport.rapport_evidently import rapport_flow
+from database.database_store import database_store_flow
 
-import matplotlib
-matplotlib.use('agg')  # Gebruik Agg-backend om interactie met Tkinter te vermijden dit geeft ERRORS anders
+
+matplotlib.use(
+    "agg"
+)  # Gebruik Agg-backend om interactie met Tkinter te vermijden dit geeft ERRORS anders
 
 
 HPO_EXPERIMENT_NAME = "project-MLops-hyperopt"
@@ -30,15 +31,12 @@ def main_flow():
     hpo_flow("./models/", 5, HPO_EXPERIMENT_NAME, best_model)
     register_flow("./models/", 5, REG_EXPERIMENT_NAME, HPO_EXPERIMENT_NAME, best_model)
 
-    rapport_flow("./models/best_model/model.pkl" , "./models/","./models/val.pkl")
+    rapport_flow("./models/best_model/model.pkl", "./models/", "./models/val.pkl")
+    database_store_flow()
 
 
 if __name__ == "__main__":
-
-
     main_flow()
-
-
 
 # nicolaidegroot
 # 6900d57ce8d4df31b0a445d890d726bf
@@ -46,5 +44,6 @@ if __name__ == "__main__":
 
 # mlflow ui --backend-store-uri sqlite:///mlflow.db
 
-# lsof -i :5000
-# kill ....
+# pylint --recursive=y .
+# black --diff .
+# black .

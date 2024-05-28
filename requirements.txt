@@ -17,3 +17,7 @@ psycopg
 psycopg_binary
 pyarrow
 joblib
+
+pytest
+pylint
+black
