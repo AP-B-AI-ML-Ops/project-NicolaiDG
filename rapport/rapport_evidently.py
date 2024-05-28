@@ -148,4 +148,4 @@ def rapport_flow(best_model_path, model_folder_path, val_path):
         return
     val_data.to_parquet("data/reference.parquet")
     # evidently rapport in html maken
-    # evidently_html_rapport(num_features, train_data_with_preds, val_data)
+    evidently_html_rapport(num_features, train_data_with_preds, val_data)
