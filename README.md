@@ -81,3 +81,5 @@ Vervolgens kun je de database connectie testen of het werken. Hierna kan een das
 
 - Docker version: 3.8
 - postgres : 15
+- API version: 0.8.4
+- Python version: 3.11.8
