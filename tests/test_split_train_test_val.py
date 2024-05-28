@@ -1,5 +1,6 @@
-import pytest
 import pandas as pd
+import pytest
+
 from load.model_prep import split_train_test_val
 
 

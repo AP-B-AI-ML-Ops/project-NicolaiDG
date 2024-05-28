@@ -1,17 +1,17 @@
 import os
 import pickle
+
 import pandas as pd
-from evidently.report import Report
+import psycopg
+from dotenv import load_dotenv
+from evidently import ColumnMapping
 from evidently.metrics import (
     ColumnDriftMetric,
     DatasetDriftMetric,
     DatasetMissingValuesMetric,
 )
-from evidently import ColumnMapping
-from dotenv import load_dotenv
-import psycopg
+from evidently.report import Report
 from prefect import flow, task
-
 
 load_dotenv()
 NUMERICAL = [

@@ -1,14 +1,14 @@
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 import pandas as pd
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
+from prefect import flow
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
+
 from train.train import start_ml_experiment
-from prefect import flow
-import mlflow
 
 
 class test_StartMLExperiment(unittest.TestCase):
